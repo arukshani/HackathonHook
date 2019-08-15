@@ -1,0 +1,8 @@
+[2019-08-15 10:24:21,194] ERROR {org.wso2.transport.http.netty.contractimpl.sender.states.RequestCompleted} - Error in HTTP client: Idle timeout triggered before initiating inbound response  
+[2019-08-15 10:25:21,182] ERROR {org.ballerinalang.net.http.BallerinaHTTPConnectorListener} - Error in HTTP server connector: Idle timeout triggered before initiating outbound response  
+[2019-08-15 10:29:04,317] ERROR {org.ballerinalang.net.http.BallerinaHTTPConnectorListener} - Error in HTTP server connector: Remote client closed the connection before initiating outbound response  
+[2019-08-15 10:29:10,244] ERROR {org.wso2.transport.http.netty.contractimpl.sender.states.RequestCompleted} - Error in HTTP client: Idle timeout triggered before initiating inbound response  
+
+===================================
+
+
