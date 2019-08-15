@@ -12,3 +12,6 @@ http://localhost:9090/news/publish
 
 Subscribers will get notified of general and bitcoin news
 
+NOTE: Had to move the custom subscriber to a single file and a different module to get it to work
+
+
