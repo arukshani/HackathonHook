@@ -6,4 +6,8 @@ Start Publishers and Subscribers
 ballerina run hook
 
 Use the following URL to check for updates from third party resources(this should ideally be called periodically) and publish news to hub
+
 http://localhost:9090/news/checkForUpdates
+
+Subscribers will get notified of general and bitcoin news
+
