@@ -16,7 +16,7 @@ listener websub:Listener websubEP = new(8181);
     secret: "Kslk30SNF2AChs2"
 }
 service websubSubscriberForNews on websubEP {
-    // Defines the resource, which accepts the content delivery requests.
+    // Defines the resource, which accepts the content delivery requests for general news.
     resource function onNotification(websub:Notification notification) {
         log:printInfo("NEWS UPDATES!!");
         var payload = notification.getJsonPayload();
@@ -39,7 +39,7 @@ service websubSubscriberForNews on websubEP {
     secret: "Kslk30SNF2AChs2"
 }
 service websubSubscriberForBitCoin on websubEP {
-    // Defines the resource, which accepts the content delivery requests.
+    // Defines the resource, which accepts the content delivery requests for bitcoin.
     resource function onNotification(websub:Notification notification) {
         log:printInfo("BITCOIN NEWS!!");
         var payload = notification.getJsonPayload();

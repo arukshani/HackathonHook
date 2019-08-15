@@ -94,41 +94,11 @@ service newsMgt on httpListener {
         } else {
             resToCaller.statusCode = 500;
             resToCaller.setTextPayload("Error in calling third party backend");
+            var result = caller->respond(resToCaller);
+            if (result is error) {
+               log:printError("Error responding to newsUpdates", err = result);
+            }
         }
-
-        //if (newsResponse is http:Response) {
-        //    var msg = newsResponse.getJsonPayload();
-        //    if (msg is json) {
-        //        // Prints the received `json` response.
-        //        io:println(msg);
-        //
-        //        http:Response resToCaller = new;
-        //        resToCaller.statusCode = 202;
-        //        var result = caller->respond(resToCaller);
-        //        if (result is error) {
-        //           log:printError("Error responding on ordering", err = result);
-        //        }
-        //
-        //        //Publishes the update to the Hub to notify the subscribers.
-        //        //log:printInfo(orderCreatedNotification);
-        //        var updateResult = webSubHub.publishUpdate(NEWS_TOPIC, msg);
-        //        var updateResultBit = webSubHub.publishUpdate(BITCOIN_TOPIC, msg);
-        //        if (updateResult is error) {
-        //            log:printError("Error publishing update", updateResult);
-        //        }
-        //    } else {
-        //        io:println("Invalid payload received:" , msg.reason());
-        //        http:Response resToCaller = new;
-        //        resToCaller.statusCode = 500;
-        //        resToCaller.setTextPayload("Error in payload parsing");
-        //        var result = caller->respond(resToCaller);
-        //    }
-        //} else {
-        //    http:Response resToCaller = new;
-        //    resToCaller.statusCode = 500;
-        //    resToCaller.setTextPayload("Error in calling third party backend");
-        //    io:println("Error when calling the backend: ", response.reason());
-        //}
     }
 }
 
