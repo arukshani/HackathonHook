@@ -100,6 +100,65 @@ service newsMgt on httpListener {
             }
         }
     }
+
+    //Publishes news to topics.
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/publish"
+    }
+    resource function newsUpdatesToCustomSubs(http:Caller caller, http:Request req) {
+
+        //Check for general news updates.
+        var newsResponse = thirdPartyBE->get("/top-headlines?country=us&category=business&apiKey=8cf52e6024924582a4ce31b998d7d032");
+        //Check for bitcoin news.
+        var bitcoinResponse = thirdPartyBE->get("/everything?q=bitcoin&from=2019-07-15&sortBy=publishedAt&apiKey=8cf52e6024924582a4ce31b998d7d032");
+
+        var newsPayload = extractPayload(newsResponse);
+        var bitcoinPayload = extractPayload(bitcoinResponse);
+
+        http:Response resToCaller = new;
+
+        if (newsPayload is json && bitcoinPayload is json) {
+
+            json general = {"general" : newsPayload};
+            //json|error gn = general.mergeJson(newsPayload);
+
+            json bitcoin = {"bitcoin" : bitcoinPayload};
+            //json|error bc = bitcoin.mergeJson(newsPayload);
+
+            //if (gn is json && bc is json) {
+            //    io:println(general);
+            //    io:println(bitcoin);
+
+                resToCaller.statusCode = 202;
+                var result = caller->respond(resToCaller);
+                if (result is error) {
+                   log:printError("Error responding to newsUpdates", err = result);
+                }
+
+                //Publishes the update to the Hub to notify the subscribers.
+                var newsResult = webSubHub.publishUpdate(NEWS_TOPIC, general);
+                var bitcoinResult = webSubHub.publishUpdate(BITCOIN_TOPIC, bitcoin);
+
+                if (newsResult is error) {
+                    log:printError("Error publishing update for news", newsResult);
+                }
+                if (bitcoinResult is error) {
+                    log:printError("Error publishing update for bitcoin", bitcoinResult);
+                }
+            //} else {
+            //    io:println(gn);
+            //    io:println(bc);
+            //}
+        } else {
+            resToCaller.statusCode = 500;
+            resToCaller.setTextPayload("Error in calling third party backend");
+            var result = caller->respond(resToCaller);
+            if (result is error) {
+               log:printError("Error responding to newsUpdates", err = result);
+            }
+        }
+    }
 }
 
 // Starts up a Ballerina WebSub Hub on port 9191 and registers the topic against
