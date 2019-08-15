@@ -14,4 +14,9 @@ Subscribers will get notified of general and bitcoin news
 
 NOTE: Had to move the custom subscriber to a single file and a different module to get it to work
 
+ISSUES: 
+1) https://github.com/ballerina-platform/ballerina-lang/issues/17788
+2) https://github.com/ballerina-platform/ballerina-lang/issues/17728
+
+
 
