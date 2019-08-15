@@ -1,1 +1,3 @@
 target
+ballerina-internal.log
+src/hook/ballerina-internal.log

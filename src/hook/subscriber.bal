@@ -21,7 +21,7 @@ service websubSubscriberForNews on websubEP {
         log:printInfo("NEWS UPDATES!!");
         var payload = notification.getJsonPayload();
         if (payload is json) {
-            log:printInfo("WebSub Notification Received for general news: " + payload.toJsonString());
+            log:printInfo("==================WebSub Notification Received for general news: " + payload.toJsonString());
         } else {
             log:printError("Error retrieving payload as string", payload);
         }
@@ -44,7 +44,7 @@ service websubSubscriberForBitCoin on websubEP {
         log:printInfo("BITCOIN NEWS!!");
         var payload = notification.getJsonPayload();
         if (payload is json) {
-            log:printInfo("WebSub Notification Received for Bitcoin: " + payload.toJsonString());
+            log:printInfo("=======================WebSub Notification Received for Bitcoin: " + payload.toJsonString());
         } else {
             log:printError("Error retrieving payload as string", payload);
         }
