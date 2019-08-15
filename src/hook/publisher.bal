@@ -124,7 +124,7 @@ service newsMgt on httpListener {
             json|error gn = general.mergeJson(newsPayload);
 
             json bitcoin = {"subject" : "bitcoin"};
-            json|error bc = bitcoin.mergeJson(newsPayload);
+            json|error bc = bitcoin.mergeJson(bitcoinPayload);
 
             if (gn is json && bc is json) {
                 //io:println(general);

@@ -9,10 +9,12 @@ import ballerina/websub;
 }
 service specificSubscriber on new WebhookListener(8080) {
     resource function onGeneralNewsUpdate(websub:Notification notification, GeneralNewsUpdateEvent gNews) {
+        log:printInfo("onGeneralNewsUpdate>>");
         log:printInfo(gNews.subject);
     }
 
     resource function onBitcoinNewsUpdate(websub:Notification notification, BitcoinNewsUpdateEvent bNews) {
+        log:printInfo("onBitcoinNewsUpdate>>");
         log:printInfo(bNews.subject);
     }
 }
