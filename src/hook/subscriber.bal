@@ -18,10 +18,10 @@ listener websub:Listener websubEP = new(8181);
 service websubSubscriberForNews on websubEP {
     // Defines the resource, which accepts the content delivery requests.
     resource function onNotification(websub:Notification notification) {
-        log:printInfo("Hello, Notification received!!");
+        log:printInfo("NEWS UPDATES!!");
         var payload = notification.getJsonPayload();
         if (payload is json) {
-            log:printInfo("WebSub Notification Received: " + payload.toJsonString());
+            log:printInfo("WebSub Notification Received for general news: " + payload.toJsonString());
         } else {
             log:printError("Error retrieving payload as string", payload);
         }
@@ -41,10 +41,10 @@ service websubSubscriberForNews on websubEP {
 service websubSubscriberForBitCoin on websubEP {
     // Defines the resource, which accepts the content delivery requests.
     resource function onNotification(websub:Notification notification) {
-        log:printInfo("Hello, Notification received!!");
+        log:printInfo("BITCOIN NEWS!!");
         var payload = notification.getJsonPayload();
         if (payload is json) {
-            log:printInfo("WebSub Notification Received: " + payload.toJsonString());
+            log:printInfo("WebSub Notification Received for Bitcoin: " + payload.toJsonString());
         } else {
             log:printError("Error retrieving payload as string", payload);
         }

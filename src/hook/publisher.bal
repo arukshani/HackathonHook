@@ -8,7 +8,7 @@ http:Client thirdPartyBE = new("https://newsapi.org/v2");
 
 listener http:Listener httpListener = new(9090);
 
-// The topic against which the publisher will publish updates and the subscribers
+// The topics against which the publisher will publish updates and the subscribers
 // need to subscribe to, to receive notifications with new updates.
 final string NEWS_TOPIC = "http://localhost:9090/news/newstopic";
 final string BITCOIN_TOPIC = "http://localhost:9090/news/bitcoin";
@@ -23,7 +23,7 @@ websub:WebSubHub webSubHub = startHubAndRegisterTopic();
 }
 service newsMgt on httpListener {
 
-    // This resource accepts the discovery requests.
+    // This resource accepts the discovery requests for news updates.
     // Requests received at this resource would respond with a Link Header
     // indicating the topic to subscribe to and the hub(s) to subscribe at.
     @http:ResourceConfig {
@@ -41,7 +41,7 @@ service newsMgt on httpListener {
         }
     }
 
-    // This resource accepts the discovery requests.
+    // This resource accepts the discovery requests for bitcoin.
     // Requests received at this resource would respond with a Link Header
     // indicating the topic to subscribe to and the hub(s) to subscribe at.
     @http:ResourceConfig {
@@ -59,47 +59,76 @@ service newsMgt on httpListener {
         }
     }
 
-    // This resource requests for new news updates.
+    //Publishes news to topics.
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/checkForUpdates"
     }
     resource function newsUpdates(http:Caller caller, http:Request req) {
 
-        var response = thirdPartyBE->get("/top-headlines?country=us&category=business&apiKey=8cf52e6024924582a4ce31b998d7d032");
-        if (response is http:Response) {
-            var msg = response.getJsonPayload();
-            if (msg is json) {
-                // Prints the received `json` response.
-                io:println(msg);
+        //Check for general news updates.
+        var newsResponse = thirdPartyBE->get("/top-headlines?country=us&category=business&apiKey=8cf52e6024924582a4ce31b998d7d032");
+        //Check for bitcoin news.
+        var bitcoinResponse = thirdPartyBE->get("/everything?q=bitcoin&from=2019-07-15&sortBy=publishedAt&apiKey=8cf52e6024924582a4ce31b998d7d032");
 
-                http:Response resToCaller = new;
-                resToCaller.statusCode = 202;
-                var result = caller->respond(resToCaller);
-                if (result is error) {
-                   log:printError("Error responding on ordering", err = result);
-                }
+        var newsPayload = extractPayload(newsResponse);
+        var bitcoinPayload = extractPayload(bitcoinResponse);
 
-                //Publishes the update to the Hub to notify the subscribers.
-                //log:printInfo(orderCreatedNotification);
-                var updateResult = webSubHub.publishUpdate(NEWS_TOPIC, msg);
-                var updateResultBit = webSubHub.publishUpdate(BITCOIN_TOPIC, msg);
-                if (updateResult is error) {
-                    log:printError("Error publishing update", updateResult);
-                }
-            } else {
-                io:println("Invalid payload received:" , msg.reason());
-                http:Response resToCaller = new;
-                resToCaller.statusCode = 500;
-                resToCaller.setTextPayload("Error in payload parsing");
-                var result = caller->respond(resToCaller);
+        http:Response resToCaller = new;
+
+        if (newsPayload is json && bitcoinPayload is json) {
+            resToCaller.statusCode = 202;
+            var result = caller->respond(resToCaller);
+            if (result is error) {
+               log:printError("Error responding to newsUpdates", err = result);
+            }
+            //Publishes the update to the Hub to notify the subscribers.
+            var newsResult = webSubHub.publishUpdate(NEWS_TOPIC, newsPayload);
+            var bitcoinResult = webSubHub.publishUpdate(BITCOIN_TOPIC, bitcoinPayload);
+            if (newsResult is error) {
+                log:printError("Error publishing update for news", newsResult);
+            }
+            if (bitcoinResult is error) {
+                log:printError("Error publishing update for bitcoin", bitcoinResult);
             }
         } else {
-            http:Response resToCaller = new;
             resToCaller.statusCode = 500;
             resToCaller.setTextPayload("Error in calling third party backend");
-            io:println("Error when calling the backend: ", response.reason());
         }
+
+        //if (newsResponse is http:Response) {
+        //    var msg = newsResponse.getJsonPayload();
+        //    if (msg is json) {
+        //        // Prints the received `json` response.
+        //        io:println(msg);
+        //
+        //        http:Response resToCaller = new;
+        //        resToCaller.statusCode = 202;
+        //        var result = caller->respond(resToCaller);
+        //        if (result is error) {
+        //           log:printError("Error responding on ordering", err = result);
+        //        }
+        //
+        //        //Publishes the update to the Hub to notify the subscribers.
+        //        //log:printInfo(orderCreatedNotification);
+        //        var updateResult = webSubHub.publishUpdate(NEWS_TOPIC, msg);
+        //        var updateResultBit = webSubHub.publishUpdate(BITCOIN_TOPIC, msg);
+        //        if (updateResult is error) {
+        //            log:printError("Error publishing update", updateResult);
+        //        }
+        //    } else {
+        //        io:println("Invalid payload received:" , msg.reason());
+        //        http:Response resToCaller = new;
+        //        resToCaller.statusCode = 500;
+        //        resToCaller.setTextPayload("Error in payload parsing");
+        //        var result = caller->respond(resToCaller);
+        //    }
+        //} else {
+        //    http:Response resToCaller = new;
+        //    resToCaller.statusCode = 500;
+        //    resToCaller.setTextPayload("Error in calling third party backend");
+        //    io:println("Error when calling the backend: ", response.reason());
+        //}
     }
 }
 
@@ -120,4 +149,13 @@ function startHubAndRegisterTopic() returns websub:WebSubHub {
         log:printError("Error registering for bitcoin topic", result2);
     }
     return internalHub;
+}
+
+function extractPayload(http:Response|error thirdPartyRes) returns @tainted json|error {
+    if (thirdPartyRes is http:Response) {
+        var msg = thirdPartyRes.getJsonPayload();
+        return msg;
+    } else {
+        return thirdPartyRes;
+    }
 }
