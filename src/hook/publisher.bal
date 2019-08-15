@@ -120,15 +120,15 @@ service newsMgt on httpListener {
 
         if (newsPayload is json && bitcoinPayload is json) {
 
-            json general = {"general" : newsPayload};
-            //json|error gn = general.mergeJson(newsPayload);
+            json general = {"subject" : "general"};
+            json|error gn = general.mergeJson(newsPayload);
 
-            json bitcoin = {"bitcoin" : bitcoinPayload};
-            //json|error bc = bitcoin.mergeJson(newsPayload);
+            json bitcoin = {"subject" : "bitcoin"};
+            json|error bc = bitcoin.mergeJson(newsPayload);
 
-            //if (gn is json && bc is json) {
-            //    io:println(general);
-            //    io:println(bitcoin);
+            if (gn is json && bc is json) {
+                //io:println(general);
+                //io:println(bitcoin);
 
                 resToCaller.statusCode = 202;
                 var result = caller->respond(resToCaller);
@@ -137,8 +137,8 @@ service newsMgt on httpListener {
                 }
 
                 //Publishes the update to the Hub to notify the subscribers.
-                var newsResult = webSubHub.publishUpdate(NEWS_TOPIC, general);
-                var bitcoinResult = webSubHub.publishUpdate(BITCOIN_TOPIC, bitcoin);
+                var newsResult = webSubHub.publishUpdate(NEWS_TOPIC, gn);
+                var bitcoinResult = webSubHub.publishUpdate(BITCOIN_TOPIC, bc);
 
                 if (newsResult is error) {
                     log:printError("Error publishing update for news", newsResult);
@@ -146,10 +146,10 @@ service newsMgt on httpListener {
                 if (bitcoinResult is error) {
                     log:printError("Error publishing update for bitcoin", bitcoinResult);
                 }
-            //} else {
-            //    io:println(gn);
-            //    io:println(bc);
-            //}
+            } else {
+                io:println(gn);
+                io:println(bc);
+            }
         } else {
             resToCaller.statusCode = 500;
             resToCaller.setTextPayload("Error in calling third party backend");

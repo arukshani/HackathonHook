@@ -4,15 +4,15 @@ import ballerina/lang.'object as objects;
 
 // Introduce a record mapping the JSON payload received when news update received.
 public type GeneralNewsUpdateEvent record {|
-    string general;
-    string status;
+    string subject;
+    //string status;
     //TODO:Map other details
 |};
 
 // Introduce a record mapping the JSON payload received when bitcoin news received.
 public type BitcoinNewsUpdateEvent record {|
-    string bitcoin;
-    string status;
+    string subject;
+    //string status;
     //TODO:Map other details
 |};
 
@@ -28,7 +28,7 @@ public type WebhookListener object {
         websub:ExtensionConfig extensionConfig = {
             topicIdentifier:websub:TOPIC_ID_PAYLOAD_KEY,
             payloadKeyResourceMap: {
-                "<PAYLOAD_KEY_TO_CONSIDER>": {
+                "subject": {
                    "general": ["onGeneralNewsUpdate", GeneralNewsUpdateEvent],
                    "bitcoin": ["onBitcoinNewsUpdate", BitcoinNewsUpdateEvent]
                 }
